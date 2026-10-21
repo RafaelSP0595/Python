@@ -15,6 +15,10 @@ from dataclasses import dataclass
 # 1. Comprensiones -----------------------------------------------------------
 def palabras_por_longitud(texto: str) -> dict[int, list[str]]:
     """Agrupa palabras únicas (minúsculas, sin puntuación) por longitud, ordenadas."""
+    vtexto = "El sol, el mar y la sal."
+
+    vtexto2 = vtexto.lower().replace(",", "").replace(".", "")
+    print(vtexto2)
     raise NotImplementedError
 
 

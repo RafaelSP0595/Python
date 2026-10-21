@@ -21,18 +21,14 @@ from dataclasses import dataclass
 def saludo(nombre: str, formal: bool = False) -> str:
     """Saludo para `nombre`, sin los espacios que traiga a los lados.
 
-    saludo("Ana") → "Hola, Ana"        saludo("Ana", formal=True) → "Buenos días, Ana."
+    saludo("Ana") → "Hola, Ana"
+    saludo("Ana", formal=True) → "Buenos días, Ana."
     Pista: f-strings y el método strip.
     """
-    raise NotImplementedError
-
-
-def main() -> None:
-    """Imprime saludo("mundo"). Al final del archivo ya está el bloque
-    `if __name__ == "__main__":` que la llama: pruebe `uv run python introduccion/intro.py`.
-    """
-    raise NotImplementedError
-
+    if formal:
+        return f"Buenos días, {nombre.strip()}"
+    else:
+        return f"Hola, {nombre.strip()}"
 
 # 2. Bloques y condiciones --------------------------------------------------------------
 def clasificar_temperatura(t: float) -> str:
@@ -41,8 +37,14 @@ def clasificar_temperatura(t: float) -> str:
     Menor que 0.3 → "precisa"; de 0.3 a 1 (incluido) → "equilibrada"; mayor que 1 → "creativa".
     Si es negativa o mayor que 2: ValueError.
     """
-    raise NotImplementedError
-
+    if t < 0 or t > 2:
+        raise ValueError(f"Fuera de rango: {t}, verifique por favor") 
+    elif t < 0.3:
+        print ("Precisa")
+    elif t >= 0.3 or t <= 1:
+        print ("Equilibrada")
+    else:
+        print ("Creativa")
 
 # 3. Recorrer y contar ------------------------------------------------------------------
 def contar_vocales(texto: str) -> dict[str, int]:
@@ -51,17 +53,25 @@ def contar_vocales(texto: str) -> dict[str, int]:
     Siempre devuelve las cinco claves, aunque alguna valga 0. El texto viene sin tildes.
     contar_vocales("Hola Mundo") → {"a": 1, "e": 0, "i": 0, "o": 2, "u": 1}
     """
-    raise NotImplementedError
+    #Por extensión
+    vocales = {"a": 1, "e": 0, "i": 0, "o": 0, "u": 0}
+    #Por comprensión
+    conteo = {v: 0 for v in "aeiou"}
+    for letra in texto.lower():
+        if letra in conteo:
+            conteo[letra] += 1 
 
+    return conteo
 
 # 4. Funciones que devuelven varios valores ---------------------------------------------
 def resumen(numeros: list[float]) -> tuple[float, float, float]:
     """(mínimo, máximo, promedio) de la lista. Lista vacía: ValueError.
-
+    min(), max(), len(), sum()
     resumen([4, 1, 7]) → (1, 7, 4.0)
     """
-    raise NotImplementedError
-
+    if numeros == []:        
+        raise ValueError(f"No existen datos") 
+    return min(numeros), max(numeros), sum(numeros) / len(numeros)
 
 # 5. Al llamar, se pasa el objeto -------------------------------------------------------
 def agregar_etiqueta(etiquetas: list[str] | None, nueva: str) -> list[str]:
@@ -70,8 +80,15 @@ def agregar_etiqueta(etiquetas: list[str] | None, nueva: str) -> list[str]:
     No modifica la lista que recibe: devuelve otra. Con None, empieza de una lista vacía.
     agregar_etiqueta(["rrhh"], "legal") → ["rrhh", "legal"]
     """
-    raise NotImplementedError
-
+    #Opción 1
+    base = [] if etiquetas is None else etiquetas.copy()
+    #Opción 2
+    # base = [] if etiquetas is None else list(etiquetas)    
+    # #Opción 3
+    # base = [] if etiquetas is None else etiquetas[:]
+    if nueva not in base:
+        base.append(nueva)
+    return base
 
 # 6. Comprensiones ----------------------------------------------------------------------
 def largos(palabras: list[str]) -> dict[str, int]:
@@ -79,8 +96,8 @@ def largos(palabras: list[str]) -> dict[str, int]:
 
     Con una comprensión de diccionario. largos(["sol", "", "luna"]) → {"sol": 3, "luna": 4}
     """
-    raise NotImplementedError
-
+    #return {p: len(p) for p in palabras if p.strip() }
+    return {p: len(p) for p in palabras if len(p.strip()) > 0 }
 
 # 7. Errores ----------------------------------------------------------------------------
 def a_entero(texto: str, defecto: int = 0) -> int:
@@ -89,7 +106,10 @@ def a_entero(texto: str, defecto: int = 0) -> int:
     a_entero(" 7 ") → 7     a_entero("4.2") → 0     a_entero("x", defecto=-1) → -1
     Pista: try / except ValueError.
     """
-    raise NotImplementedError
+    try:
+        return int(texto)
+    except ValueError:
+        return "defecto"
 
 
 # 8. Módulos de la biblioteca estándar --------------------------------------------------
@@ -98,8 +118,10 @@ def hipotenusa(a: float, b: float) -> float:
 
     Use math.sqrt (el import ya está arriba). hipotenusa(1, 1) → 1.41
     """
-    raise NotImplementedError
+    # c = a**2 + b**2
+    # return round(math.sqrt(c),2)
 
+    return round(math.sqrt(a**2+b**2),2)
 
 # 9. Clases -----------------------------------------------------------------------------
 class Contador:
@@ -111,21 +133,22 @@ class Contador:
     """
 
     def __init__(self, inicio: int = 0) -> None:
-        raise NotImplementedError
+        self._valor = inicio
 
     @property
     def valor(self) -> int:
-        raise NotImplementedError
+        return self._valor
 
     def incrementar(self, paso: int = 1) -> None:
-        raise NotImplementedError
+        if paso <= 0:
+            raise ValueError(f"El paso debe ser mayor a 0.")
+        self._valor += paso
 
     def reiniciar(self) -> None:
-        raise NotImplementedError
+        self._valor = 0
 
     def __repr__(self) -> str:
-        raise NotImplementedError
-
+        return f"Contador({self._valor})"
 
 # 10. dataclass -------------------------------------------------------------------------
 @dataclass(frozen=True)
@@ -140,11 +163,12 @@ class Producto:
     etiquetas: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
-        raise NotImplementedError
+        if self.precio < 0:
+            raise ValueError("El precio no puede ser negativo")
 
     @property
     def precio_con_iva(self) -> float:
-        raise NotImplementedError
+        return round (self.precio * 1.19,2)
 
 
 # 11. Generadores -----------------------------------------------------------------------
@@ -154,8 +178,37 @@ def lineas_numeradas(texto: str) -> Iterator[str]:
     Las líneas vacías no se cuentan. Debe ser un generador (yield), no devolver una lista.
     list(lineas_numeradas("a\\n\\n b ")) → ["1: a", "2: b"]
     """
-    raise NotImplementedError
 
+    numero = 0
+    for linea in texto.splitlines():
+        if linea.strip():
+            numero += 1
+            yield f"{numero}: {linea.strip()}"    
+
+def main() -> None:
+    print(saludo("Rafael", False))
+    clasificar_temperatura(1.1)
+    print(contar_vocales("Hola ChamKito"))
+    print(resumen([4,1,7]))    
+    print(a_entero(" 54875 "))
+    print(hipotenusa(5,6))
+    c = Contador()
+    print(c)
+    c.incrementar(paso = 10)
+    print(c)
+    c.reiniciar()
+    print(c)
+
+    p = Producto("Prueba",145.4)
+    print(p.precio_con_iva)
+    # p2 = Producto("Prueba2",-15)
+    # print(p2.precio_con_iva)
+
+    gen = lineas_numeradas("primera\n\n  segunda  \n")
+    print(list(gen))
+    #print(next(gen))
+
+    print(textos("prueba de todo en minuscula"))
 
 # 12. Decoradores -----------------------------------------------------------------------
 def en_mayusculas(funcion: Callable[..., str]) -> Callable[..., str]:
@@ -164,8 +217,16 @@ def en_mayusculas(funcion: Callable[..., str]) -> Callable[..., str]:
     Debe aceptar cualquier argumento (*args, **kwargs) y conservar el nombre y la docstring
     de la original con functools.wraps (el import ya está arriba).
     """
-    raise NotImplementedError
 
+    @functools.wraps(funcion)
+    def envoltura(*args, **kwargs):
+        p = funcion(*args, **kwargs)
+        return p.upper()    
+    return envoltura
+
+@en_mayusculas
+def textos(txt: str):
+    return txt
 
 if __name__ == "__main__":
     main()
