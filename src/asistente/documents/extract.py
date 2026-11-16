@@ -35,7 +35,7 @@ def extract_text(path: Path, lang: str = "spa") -> str:
         import pymupdf
 
         parts: list[str] = []
-        with pymupdf.open(path) as pdf:
+        with pymupdf.open(path) as pdf:  # type: ignore[no-untyped-call,unused-ignore]
             if pdf.page_count > MAX_PAGES:
                 raise ValueError(f"El PDF tiene {pdf.page_count} páginas; máximo {MAX_PAGES}")
             for page in pdf:

@@ -35,7 +35,7 @@ Compruebe en una terminal nueva: `ollama --version`.
 Pruebe el de chat: `ollama run qwen3:4b-instruct "Hola, responde en una frase"` (con el nombre del
 suyo). Para salir de `ollama run`, `/bye`.
 
-**4. Configure el proyecto.** En la raíz de su repositorio del curso, después de traer `s07-c1.1`:
+**4. Configure el proyecto.** En la raíz de su repositorio del curso, después de traer `s07-c1.2`:
 
 ```bash
 uv sync --extra llm --extra docs   # instala los clientes de los modelos y de documentos
