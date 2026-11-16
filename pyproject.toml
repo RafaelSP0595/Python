@@ -59,6 +59,8 @@ ignore = ["ANN401"]
 "tipos_de_datos/**" = ["S101", "ANN"]
 "pruebas_pytest/**" = ["S101", "ANN"]
 "poo/**" = ["S101", "ANN", "N818"]
+"buenas_practicas/**" = ["S101", "ANN", "N818"]
+"patrones/**" = ["S101", "ANN", "N818"]
 
 [tool.mypy]
 strict = true
