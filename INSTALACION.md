@@ -35,11 +35,15 @@ Compruebe en una terminal nueva: `ollama --version`.
 Pruebe el de chat: `ollama run qwen3:4b-instruct "Hola, responde en una frase"` (con el nombre del
 suyo). Para salir de `ollama run`, `/bye`.
 
-**4. Configure el proyecto.** En la raíz de su repositorio del curso, después de traer `s07-c1`:
+**4. Configure el proyecto.** En la raíz de su repositorio del curso, después de traer `s07-c1.1`:
 
 ```bash
-cp .env.example .env            # Windows (PowerShell): copy .env.example .env
+uv sync --extra llm --extra docs   # instala los clientes de los modelos y de documentos
+cp .env.example .env               # Windows (PowerShell): copy .env.example .env
 ```
+
+Desde ahora, cada vez que sincronice, use `uv sync --extra llm --extra docs`: un `uv sync` solo
+desinstala esos paquetes.
 
 Abra `.env` y cambie solo dos líneas, con el modelo que descargó:
 
@@ -62,6 +66,7 @@ Mande una captura de esa salida al chat del curso.
 | `✗ No responde en http://localhost:11434/v1` | Ollama no está abierto: ábralo (Linux: `ollama serve`) |
 | `✗ Falta qwen3:…` | El `ollama pull` no terminó, o el nombre del `.env` no coincide con `ollama list` |
 | `✗ OLLAMA_MODEL está vacío` | Faltó el `.env` o el `--env-file .env` |
+| `✗ Falta el paquete openai` | `uv sync --extra llm --extra docs` |
 | `ollama: command not found` | Cierre y vuelva a abrir la terminal; en Windows, reinicie la sesión |
 | El chat tarda más de un minuto cada vez | El modelo es grande para su memoria: use el de la fila de arriba en la tabla del paso 3, y cierre el navegador y Docker mientras prueba |
 

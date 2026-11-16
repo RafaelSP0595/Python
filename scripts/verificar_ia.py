@@ -14,8 +14,8 @@ import os
 import sys
 import time
 import urllib.request
+from typing import NoReturn
 
-from asistente.adapters.embeddings.providers import build_embedder
 from asistente.adapters.llm.providers import build_llm
 from asistente.domain.models import Message, Role
 
@@ -28,7 +28,7 @@ def ok(texto: str) -> None:
     print(f"  ✓ {texto}")
 
 
-def falla(texto: str, pista: str) -> None:
+def falla(texto: str, pista: str) -> NoReturn:
     print(f"  ✗ {texto}\n    → {pista}")
     sys.exit(1)
 
@@ -36,6 +36,16 @@ def falla(texto: str, pista: str) -> None:
 def modelos_instalados() -> set[str]:
     with urllib.request.urlopen(f"{URL}/models", timeout=5) as r:  # noqa: S310 (URL local)
         return {m["id"] for m in json.load(r)["data"]}
+
+
+def embeddings(textos: list[str]) -> list[list[float]]:
+    """Directo a Ollama: el adaptador del kit (OllamaEmbedding) es el taller de la clase 3."""
+    datos = json.dumps({"model": EMBED, "input": textos}).encode()
+    pedido = urllib.request.Request(  # noqa: S310 (URL local)
+        f"{URL}/embeddings", data=datos, headers={"Content-Type": "application/json"}
+    )
+    with urllib.request.urlopen(pedido, timeout=120) as r:  # noqa: S310 (URL local)
+        return [d["embedding"] for d in json.load(r)["data"]]
 
 
 async def main() -> None:
@@ -58,7 +68,10 @@ async def main() -> None:
         ok(modelo)
 
     print(f"3. Chat con {CHAT} (la primera vez carga el modelo: puede tardar hasta un minuto)")
-    llm = build_llm("ollama")
+    try:
+        llm = build_llm("ollama")
+    except ModuleNotFoundError:
+        falla("Falta el paquete openai", "uv sync --extra llm --extra docs")
     inicio = time.perf_counter()
     respuesta = await llm.complete(
         [
@@ -69,7 +82,7 @@ async def main() -> None:
     ok(f"{respuesta.strip()[:80]!r} en {time.perf_counter() - inicio:.1f} s")
 
     print(f"4. Embeddings con {EMBED}")
-    vectores = build_embedder("ollama").embed(["vacaciones", "días de descanso"])
+    vectores = embeddings(["vacaciones", "días de descanso"])
     ok(f"{len(vectores)} vectores de {len(vectores[0])} dimensiones")
 
     print("\nTodo listo para las clases de IA.")
