@@ -2,6 +2,8 @@
 
 import pytest
 
+from asistente.adapters.embeddings.providers import HashingEmbedding
+from asistente.adapters.persistence.memory import InMemoryStore, InMemoryUnitOfWork
 from asistente.domain.models import Conversation, Document, Role
 
 
@@ -31,3 +33,36 @@ def test_ventana_de_contexto_conserva_system_y_turnos_recientes():
     assert window[0].role is Role.SYSTEM
     assert window[-1].content.startswith("pregunta 9")
     assert len(window) < 11
+
+
+# taller: s04
+def test_unit_of_work_sin_commit_no_persiste():
+    store = InMemoryStore()
+    with InMemoryUnitOfWork(store) as uow:
+        uow.documents.add(Document("t", "contenido"))
+    assert store.documents == {}
+
+
+# taller: s04
+def test_unit_of_work_hace_rollback_si_hay_error():
+    store = InMemoryStore()
+    doc = Document("t", "contenido")
+    with pytest.raises(ValueError), InMemoryUnitOfWork(store) as uow:
+        uow.documents.add(doc)
+        uow.chunks.add(doc.split())  # sin embeddings → ValueError
+        uow.commit()
+    assert store.documents == {}
+
+
+# taller: s04
+def test_unit_of_work_commit():
+    store = InMemoryStore()
+    doc = Document("t", "contenido")
+    chunks = doc.split()
+    for c, v in zip(chunks, HashingEmbedding().embed([c.text for c in chunks]), strict=True):
+        c.embedding = v
+    with InMemoryUnitOfWork(store) as uow:
+        uow.documents.add(doc)
+        uow.chunks.add(chunks)
+        uow.commit()
+    assert doc.id in store.documents and len(store.chunks) == 1
